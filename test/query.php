@@ -1,43 +1,28 @@
 <?php
 
+use SQL\Query;
+
 require "../src/autoload.php";
 
-class Where implements \Stringable
-{
-  private array $tokens;
+$exp = new Query()
+  ->read('test_table')
+  ->where('foo')
+  ->orWhere('hello', 'world')
+  ->where('number', '>', 665)
+  ->orWhere(
+    fn($w) => $w
+      ->where('sub1', 1)
+      ->orWhere('sub2', 2)
+  )
+  ->whereIn('fruit', ['Banana', 'Apple', 'Mango', 'Strawberry'])
+  ->whereNotIn('vegetable', ['Banana', 'Apple', 'Mango', 'Strawberry'])
+  ->whereBetween('CURRENT_DATE', '2026-01-01', '2026-12-31');
 
-  public function __toString(): string
-  {
-    return "";
-  }
-
-  private function handleWhere(
-    string $join,
-    string $param,
-    string $op,
-    mixed $value
-  ): self {
-    return $this;
-  }
-
-  public function where(string $param, string $op = '=', mixed $value = null)
-  {
-    if (empty($value)) {
-      $value = $op;
-      $op = '=';
-    }
-
-    $token = [
-      "join"  => "AND",
-      "param" => $param,
-      "op"    => $op,
-      "value" => $value
-    ];
-
-    $this->tokens[] = $token;
-    return $this;
-  }
-}
+echo "<pre>";
+echo $exp;
+echo "<br/><br/>";
+print_r($exp->getParams());
+echo "</pre>";
 
 /**
  * CREATE
